@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
+import { countries } from "../data/countries";
 import { ROUTE_EVENT } from "./TripPlanner";
 
 const initialStatus = {
@@ -96,7 +97,12 @@ export default function RegistrationForm() {
         Passport country
         <span className="input-wrap">
           <Icon name="pin" size={18} />
-          <input type="text" name="passportCountry" placeholder="Country of passport" autoComplete="country-name" required />
+          <select name="passportCountry" defaultValue="" autoComplete="country-name" required>
+            <option value="" disabled>Select country of passport</option>
+            {countries.map((country) => (
+              <option key={country}>{country}</option>
+            ))}
+          </select>
         </span>
       </label>
       <label>
