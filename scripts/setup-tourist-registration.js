@@ -150,10 +150,26 @@ async function main() {
     await db.collection("travel_alerts").createIndexes([
       { key: { active: 1, createdAt: -1 }, name: "active_createdAt" },
     ]);
+    await db.collection("police_operations").createIndexes([
+      { key: { startAt: -1 }, name: "startAt_desc" },
+      { key: { status: 1 }, name: "status_asc" },
+    ]);
+    await db.collection("criminal_records").createIndexes([
+      { key: { createdAt: -1 }, name: "createdAt_desc" },
+      { key: { status: 1, threatLevel: 1 }, name: "status_threatLevel" },
+      { key: { caseNo: 1 }, name: "caseNo_asc" },
+    ]);
+    await db.collection("tourist_spot_reports").createIndexes([
+      { key: { createdAt: -1 }, name: "createdAt_desc" },
+      { key: { spotName: 1 }, name: "spotName_asc" },
+    ]);
+    await db.collection("admin_users").createIndexes([
+      { key: { username: 1 }, name: "username_unique", unique: true },
+    ]);
 
     console.log(`MongoDB connection OK`);
     console.log(`Database: ${dbName}`);
-    console.log(`Collections ready: ${collectionName}, tour_guides, support_requests, travel_alerts`);
+    console.log(`Collections ready: ${collectionName}, tour_guides, support_requests, travel_alerts, police_operations, criminal_records, tourist_spot_reports, admin_users`);
   } finally {
     await client.close();
   }

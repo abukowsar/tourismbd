@@ -64,10 +64,20 @@ const tones = {
   warning: "critical",
   advisory: "serious",
   info: "info",
+  planned: "info",
+  ongoing: "warn",
+  wanted: "critical",
+  "under investigation": "info",
+  arrested: "good",
+  charged: "serious",
+  convicted: "muted",
+  released: "muted",
+  medium: "serious",
 };
 
-export function Pill({ value, children }) {
-  return <span className={`a-pill tone-${tones[value] || "muted"}`}>{children || value}</span>;
+/** `tone` overrides the colour picked from `value` (e.g. a "high" threat is critical, not serious). */
+export function Pill({ value, tone, children }) {
+  return <span className={`a-pill tone-${tone || tones[value] || "muted"}`}>{children || value}</span>;
 }
 
 export function Modal({ title, onClose, children, wide = false, side = false }) {

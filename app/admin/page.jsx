@@ -2,11 +2,23 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Icon from "../components/Icon";
+import AdminUsers from "./_components/AdminUsers";
 import Alerts from "./_components/Alerts";
-import { demoAlerts, demoGuides, demoRequests, demoVisitors } from "./_components/demoData";
+import {
+  demoAdminUsers,
+  demoAlerts,
+  demoCriminals,
+  demoGuides,
+  demoOperations,
+  demoRequests,
+  demoSpotReports,
+  demoVisitors,
+} from "./_components/demoData";
 import Guides from "./_components/Guides";
 import Overview from "./_components/Overview";
 import Requests from "./_components/Requests";
+import SpotReports from "./_components/SpotReports";
+import TouristPolice from "./_components/TouristPolice";
 import { isLiveAlert } from "./_components/ui";
 import useCollection from "./_components/useCollection";
 import Visitors from "./_components/Visitors";
@@ -17,12 +29,21 @@ const sections = [
   { id: "guides", label: "Tour guides", icon: "shield", title: "Tour guide roster" },
   { id: "requests", label: "Support requests", icon: "chat", title: "Support requests" },
   { id: "alerts", label: "Travel alerts", icon: "info", title: "Travel alerts" },
+  { id: "police", label: "Tourist Police", icon: "shield", title: "Tourist Police", police: true },
+  { id: "spots", label: "Spot reports", icon: "landmark", title: "Tourist spot reports", police: true },
+  { id: "users", label: "Admin users", icon: "passport", title: "Admin users" },
 ];
+
+// Police admins only see sections marked `police`; the super admin sees everything.
+function sectionsFor(role) {
+  return role === "police" ? sections.filter((item) => item.police) : role ? sections : [];
+}
 
 export default function AdminConsole() {
   const [section, setSection] = useState("overview");
   const [toasts, setToasts] = useState([]);
   const [admin, setAdmin] = useState("");
+  const [role, setRole] = useState(null);
   const [openVisitorId, setOpenVisitorId] = useState(null);
   const [requestDraft, setRequestDraft] = useState(null);
   const [today, setToday] = useState("");
@@ -33,18 +54,35 @@ export default function AdminConsole() {
     window.setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), 4000);
   }, []);
 
-  const visitors = useCollection("/api/admin/visitors", "visitors", demoVisitors, notify);
-  const guides = useCollection("/api/admin/guides", "guides", demoGuides, notify);
-  const requests = useCollection("/api/admin/requests", "requests", demoRequests, notify);
-  const alerts = useCollection("/api/admin/alerts", "alerts", demoAlerts, notify);
-  const stores = [visitors, guides, requests, alerts];
+  const isSuper = role === "super";
+  const canPolice = role === "super" || role === "police";
+  const visitors = useCollection("/api/admin/visitors", "visitors", demoVisitors, notify, isSuper);
+  const guides = useCollection("/api/admin/guides", "guides", demoGuides, notify, isSuper);
+  const requests = useCollection("/api/admin/requests", "requests", demoRequests, notify, isSuper);
+  const alerts = useCollection("/api/admin/alerts", "alerts", demoAlerts, notify, isSuper);
+  const operations = useCollection("/api/admin/police/operations", "operations", demoOperations, notify, canPolice);
+  const criminals = useCollection("/api/admin/police/criminals", "criminals", demoCriminals, notify, canPolice);
+  const spotReports = useCollection(
+    "/api/admin/police/spot-reports",
+    "spotReports",
+    demoSpotReports,
+    notify,
+    canPolice,
+  );
+  const users = useCollection("/api/admin/users", "users", demoAdminUsers, notify, isSuper);
+  const allowed = sectionsFor(role);
+  const stores = [visitors, guides, requests, alerts, operations, criminals, spotReports, users];
+  const enabledStores = [isSuper, isSuper, isSuper, isSuper, canPolice, canPolice, canPolice, isSuper];
   const isDemo = stores.some((store) => store.mode === "demo");
-  const isLoading = stores.some((store) => store.mode === "loading");
+  // An enabled store still reads "off" for one render after the role arrives.
+  const isLoading =
+    !role ||
+    stores.some((store, index) => store.mode === "loading" || (store.mode === "off" && enabledStores[index]));
 
   useEffect(() => {
     function fromHash() {
       const hash = window.location.hash.slice(1);
-      if (sections.some((item) => item.id === hash)) {
+      if (hash && sections.some((item) => item.id === hash)) {
         setSection(hash);
       }
     }
@@ -61,11 +99,21 @@ export default function AdminConsole() {
 
     fetch("/api/admin/login")
       .then((response) => (response.ok ? response.json() : {}))
-      .then((json) => setAdmin(json.username || ""))
+      .then((json) => {
+        setAdmin(json.name || json.username || "");
+        setRole(json.role || "super");
+      })
       .catch(() => {});
 
     return () => window.removeEventListener("hashchange", fromHash);
   }, []);
+
+  // Keep the open section inside what this role may see (e.g. a police admin landing on #visitors).
+  useEffect(() => {
+    if (allowed.length && !allowed.some((item) => item.id === section)) {
+      setSection(allowed[0].id);
+    }
+  }, [allowed, section]);
 
   const navigate = useCallback((id) => {
     setSection(id);
@@ -105,8 +153,9 @@ export default function AdminConsole() {
     visitors: visitors.items.filter((item) => item.status === "new").length,
     requests: requests.items.filter((item) => item.state !== "done").length,
     alerts: alerts.items.filter(isLiveAlert).length,
+    police: operations.items.filter((item) => item.status === "ongoing").length,
   };
-  const current = sections.find((item) => item.id === section);
+  const current = allowed.find((item) => item.id === section) || allowed[0] || sections[0];
 
   return (
     <div className="admin-app">
@@ -115,12 +164,12 @@ export default function AdminConsole() {
           <img src="/assets/logo.png" alt="" aria-hidden="true" />
           <span>
             Tourism BD
-            <small>Management console</small>
+            <small>{role === "police" ? "Tourist Police console" : "Management console"}</small>
           </span>
         </a>
 
         <nav aria-label="Admin sections">
-          {sections.map((item) => (
+          {allowed.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -174,16 +223,6 @@ export default function AdminConsole() {
           </div>
         </header>
 
-        {isDemo ? (
-          <p className="a-banner" role="status">
-            <Icon name="info" size={18} />
-            <span>
-              <strong>The database is unreachable, so sample data is shown.</strong> Changes you make now
-              stay in this browser tab only. ({visitors.error || guides.error})
-            </span>
-          </p>
-        ) : null}
-
         <main className="admin-content" id="main-content">
           {isLoading ? (
             <div className="a-loading" aria-busy="true">
@@ -193,7 +232,7 @@ export default function AdminConsole() {
             </div>
           ) : null}
 
-          {!isLoading && section === "overview" ? (
+          {!isLoading && current.id === "overview" ? (
             <Overview
               visitors={visitors.items}
               guides={guides.items}
@@ -203,7 +242,7 @@ export default function AdminConsole() {
               onNavigate={navigate}
             />
           ) : null}
-          {!isLoading && section === "visitors" ? (
+          {!isLoading && current.id === "visitors" ? (
             <Visitors
               store={visitors}
               guides={guides.items}
@@ -213,10 +252,10 @@ export default function AdminConsole() {
               notify={notify}
             />
           ) : null}
-          {!isLoading && section === "guides" ? (
+          {!isLoading && current.id === "guides" ? (
             <Guides store={guides} visitorStore={visitors} notify={notify} />
           ) : null}
-          {!isLoading && section === "requests" ? (
+          {!isLoading && current.id === "requests" ? (
             <Requests
               store={requests}
               visitors={visitors.items}
@@ -225,7 +264,12 @@ export default function AdminConsole() {
               notify={notify}
             />
           ) : null}
-          {!isLoading && section === "alerts" ? <Alerts store={alerts} notify={notify} /> : null}
+          {!isLoading && current.id === "alerts" ? <Alerts store={alerts} notify={notify} /> : null}
+          {!isLoading && current.id === "police" ? (
+            <TouristPolice operations={operations} criminals={criminals} notify={notify} />
+          ) : null}
+          {!isLoading && current.id === "spots" ? <SpotReports store={spotReports} notify={notify} /> : null}
+          {!isLoading && current.id === "users" ? <AdminUsers store={users} notify={notify} /> : null}
         </main>
       </div>
 

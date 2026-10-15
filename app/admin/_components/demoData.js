@@ -62,3 +62,31 @@ export function demoAlerts() {
     { id: "demo-a2", title: "Heavy rain expected in the Sylhet region", message: "Check with your guide before visiting Ratargul or Jaflong. Some boat routes may pause.", level: "warning", region: "Sylhet", active: false, expiresAt: daysFromNow(3), createdAt: daysFromNow(-6) },
   ];
 }
+
+export function demoOperations() {
+  return [
+    { id: "demo-o1", title: "Beach patrol — Kolatoli to Sugandha", type: "Patrol", status: "ongoing", zone: "Cox's Bazar", location: "Kolatoli, Sugandha and Laboni points", startAt: daysFromNow(0), endAt: daysFromNow(0), officerInCharge: "SI Rafiqul Islam", teamSize: "8", details: "Evening patrol along the main beach points.", outcome: "", updatedBy: "Demo", createdAt: daysFromNow(-1) },
+    { id: "demo-o2", title: "Airport arrival help desk", type: "Checkpoint", status: "ongoing", zone: "Dhaka", location: "HSIA Terminal 2, arrival hall", startAt: daysFromNow(-2), endAt: daysFromNow(5), officerInCharge: "ASP Farhana Ahmed", teamSize: "4", details: "Help foreign arrivals with taxis and registered hotels.", outcome: "", updatedBy: "Demo", createdAt: daysFromNow(-3) },
+    { id: "demo-o3", title: "Drive against fake tour operators", type: "Special drive", status: "planned", zone: "Sylhet", location: "Jaflong and Ratargul boat ghats", startAt: daysFromNow(3), endAt: null, officerInCharge: "Inspector Kamal Uddin", teamSize: "12", details: "Check licences of boat and tour operators.", outcome: "", updatedBy: "Demo", createdAt: daysFromNow(-1) },
+    { id: "demo-o4", title: "Missing tourist search — Nilgiri trail", type: "Rescue", status: "completed", zone: "Bandarban", location: "Nilgiri to Thanchi trail", startAt: daysFromNow(-6), endAt: daysFromNow(-5), officerInCharge: "SI Mong Thoai", teamSize: "10", details: "Two hikers reported missing after dark.", outcome: "Both found safe and escorted back to Bandarban.", updatedBy: "Demo", createdAt: daysFromNow(-6) },
+  ];
+}
+
+export function demoCriminals() {
+  return [
+    { id: "demo-c1", name: "Unknown (CCTV suspect)", alias: "Beach bag snatcher", age: "25-30", nationality: "Bangladesh", idNumber: "", offenseType: "Theft", caseNo: "CXB-2026-114", status: "wanted", threatLevel: "medium", zone: "Cox's Bazar", lastKnownLocation: "Sugandha Point", incidentDate: daysFromNow(-4), description: "Snatches bags from tourists on the beach; escapes on a motorbike.", updatedBy: "Demo", createdAt: daysFromNow(-4) },
+    { id: "demo-c2", name: "Shafiq Mia", alias: "Fake guide", age: "34", nationality: "Bangladesh", idNumber: "NID 19xx-xxxx", offenseType: "Fraud / scam", caseNo: "SYL-2026-031", status: "arrested", threatLevel: "low", zone: "Sylhet", lastKnownLocation: "Jaflong ghat", incidentDate: daysFromNow(-10), description: "Took advance payments for boat trips that never ran.", updatedBy: "Demo", createdAt: daysFromNow(-10) },
+    { id: "demo-c3", name: "Ring of 3 suspects", alias: "", age: "", nationality: "Bangladesh", idNumber: "", offenseType: "Robbery", caseNo: "DHK-2026-208", status: "under investigation", threatLevel: "high", zone: "Dhaka", lastKnownLocation: "Gulshan 2 area", incidentDate: daysFromNow(-2), description: "Posing as ride-share drivers near hotels at night.", updatedBy: "Demo", createdAt: daysFromNow(-2) },
+  ];
+}
+
+export function demoSpotReports() {
+  return [
+    { id: "demo-s1", spotName: "Cox's Bazar Sea Beach (Sugandha Point)", address: "Sugandha Point, Cox's Bazar Sadar, Cox's Bazar", history: "Part of the world's longest natural sea beach; Sugandha became the main tourist point in the 2000s.", importance: "Main beach access, hotels and restaurants nearby, lifeguard posts, tourist police booth.", transport: "Flights to Cox's Bazar Airport; buses from Dhaka and Chattogram; trains on the Cox's Bazar line.", accommodation: "Over 500 hotels, motels and resorts from budget to five-star.", crimes: "Bag snatching, pickpocketing, overcharging by vendors, harassment of women tourists.", otherProblems: "Overcrowding on holidays, drowning risk at high tide, waste on the beach.", solutions: "More CCTV and night patrols, fixed price lists for vendors, more lifeguards at peak times.", dailyVisitors: "15,000–20,000; 50,000+ on holidays", attractionMeasures: "Better lighting and walkways, clean toilets, visitor information desks in English.", createdBy: "Demo", updatedBy: "Demo", createdAt: daysFromNow(-3), updatedAt: daysFromNow(-3) },
+    { id: "demo-s2", spotName: "Ratargul Swamp Forest", address: "Gowainghat, Sylhet", history: "Freshwater swamp forest declared a protected area by the Forest Department.", importance: "Only freshwater swamp forest in Bangladesh; boat trips and a watch tower.", transport: "Car or CNG from Sylhet city (about 1.5 hours), then boats from the ghat.", accommodation: "No stays at the forest; hotels and resorts in Sylhet city.", crimes: "Overcharging by boatmen, fake guides.", otherProblems: "Poor road in the rainy season, no life jackets on many boats.", solutions: "Licensed boats with fixed fares, compulsory life jackets, police post at the ghat.", dailyVisitors: "1,000–2,000 in the monsoon season", attractionMeasures: "Repair the access road, build a visitor centre, publish boat fares online.", createdBy: "Demo", updatedBy: "Demo", createdAt: daysFromNow(-9), updatedAt: daysFromNow(-9) },
+  ];
+}
+
+export function demoAdminUsers() {
+  return [];
+}

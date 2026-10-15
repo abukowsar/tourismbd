@@ -4578,6 +4578,7 @@ body:has(.admin-login) .language-translator {
 }
 
 .a-field.is-wide,
+.a-muted.is-wide,
 .a-form-actions.is-wide {
   grid-column: 1 / -1;
 }
@@ -4636,6 +4637,20 @@ body:has(.admin-login) .language-translator {
 
 .a-details dd {
   margin: 0;
+}
+
+.a-spot-details div {
+  grid-template-columns: minmax(180px, 2fr) 3fr;
+}
+
+.a-spot-details dt small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.a-spot-details dd {
+  white-space: pre-line;
 }
 
 .a-details a {

@@ -62,7 +62,7 @@ function AdminLogin() {
         </a>
 
         <h1 id="admin-login-title">Staff sign in</h1>
-        <p>Manage visitors, tour guides, support requests, and travel alerts.</p>
+        <p>Manage visitors, tour guides, support requests, travel alerts, and Tourist Police records.</p>
 
         <form onSubmit={handleSubmit} noValidate>
           <label>

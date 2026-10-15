@@ -22,13 +22,19 @@ async function request(url, options) {
 /**
  * Loads one admin collection from the API. If the database can't be reached, falls back to
  * demo records and keeps every change in the browser so the console stays usable.
+ * With `enabled` false (the signed-in role can't use this collection) nothing is fetched.
  */
-export default function useCollection(endpoint, key, demoItems, notify) {
+export default function useCollection(endpoint, key, demoItems, notify, enabled = true) {
   const [items, setItems] = useState([]);
   const [mode, setMode] = useState("loading");
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
+    if (!enabled) {
+      setItems([]);
+      setMode("off");
+      return;
+    }
     try {
       const json = await request(endpoint);
       setItems(json[key] || []);
@@ -39,7 +45,7 @@ export default function useCollection(endpoint, key, demoItems, notify) {
       setMode("demo");
       setError(loadError.message);
     }
-  }, [endpoint, key, demoItems]);
+  }, [endpoint, key, demoItems, enabled]);
 
   useEffect(() => {
     load();
