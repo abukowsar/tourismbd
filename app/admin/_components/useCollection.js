@@ -20,8 +20,8 @@ async function request(url, options) {
 }
 
 /**
- * Loads one admin collection from the API. If the database can't be reached, falls back to
- * demo records and keeps every change in the browser so the console stays usable.
+ * Loads one admin collection from the API. If the database can't be reached, shows demo records
+ * read-only: changes are refused rather than kept in the browser, so nothing looks saved that isn't.
  * With `enabled` false (the signed-in role can't use this collection) nothing is fetched.
  */
 export default function useCollection(endpoint, key, demoItems, notify, enabled = true) {
@@ -51,11 +51,14 @@ export default function useCollection(endpoint, key, demoItems, notify, enabled 
     load();
   }, [load]);
 
+  function refuseOffline() {
+    notify?.(`Not saved — the database is not connected. ${error}`.trim(), "error");
+  }
+
   async function create(data) {
     if (mode !== "live") {
-      const item = { id: `demo-${crypto.randomUUID()}`, createdAt: new Date().toISOString(), ...data };
-      setItems((current) => [item, ...current]);
-      return item;
+      refuseOffline();
+      return null;
     }
 
     try {
@@ -69,14 +72,15 @@ export default function useCollection(endpoint, key, demoItems, notify, enabled 
   }
 
   async function update(id, patch) {
+    if (mode !== "live") {
+      refuseOffline();
+      return false;
+    }
+
     const previous = items;
     setItems((current) =>
       current.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
-
-    if (mode !== "live") {
-      return true;
-    }
 
     try {
       const { item } = await request(endpoint, {
@@ -93,12 +97,13 @@ export default function useCollection(endpoint, key, demoItems, notify, enabled 
   }
 
   async function remove(id) {
+    if (mode !== "live") {
+      refuseOffline();
+      return false;
+    }
+
     const previous = items;
     setItems((current) => current.filter((item) => item.id !== id));
-
-    if (mode !== "live") {
-      return true;
-    }
 
     try {
       await request(`${endpoint}?id=${encodeURIComponent(id)}`, { method: "DELETE" });

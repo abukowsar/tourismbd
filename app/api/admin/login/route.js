@@ -7,7 +7,7 @@ import {
   verifyPassword,
 } from "../../../../lib/admin-auth";
 import { ADMIN_COOKIE } from "../../../../lib/admin-constants";
-import { getDb } from "../../../../lib/admin-crud";
+import { DB_CONNECTION_MESSAGE, getDb, isDbConnectionError } from "../../../../lib/admin-crud";
 
 export async function GET(request) {
   const session = await getAdminSession(request);
@@ -56,6 +56,13 @@ export async function POST(request) {
     );
     return response;
   } catch (error) {
+    // Only police admin logins reach the database; the super admin can still sign in.
+    if (isDbConnectionError(error)) {
+      return NextResponse.json(
+        { message: `Police admin sign-in is unavailable. ${DB_CONNECTION_MESSAGE}` },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { message: error?.message || "Could not sign in." },
       { status: 500 },
